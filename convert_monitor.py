@@ -1,7 +1,7 @@
 import os
 import re
+from getopt import GetoptError, getopt
 from sys import argv, exit
-from getopt import getopt, GetoptError
 
 import yaml
 from datadog_api_client import ApiClient, Configuration
@@ -10,15 +10,25 @@ from dotenv import load_dotenv
 
 
 def setup_dd_client():
-    load_dotenv()
-    apiKey = os.getenv('API_KEY')
-    appKey = os.getenv('APP_KEY')
+    apiKey, appKey = get_envs()
     configuration = Configuration()
     configuration.api_key["apiKeyAuth"] = apiKey
     configuration.api_key["appKeyAuth"] = appKey
     api_client = ApiClient(configuration)
     api_instance = MonitorsApi(api_client)
     return api_instance
+
+
+def get_envs():
+    load_dotenv()
+    apiKey = os.getenv('API_KEY')
+    appKey = os.getenv('APP_KEY')
+
+    if apiKey is None or appKey is None:
+        print("ERROR: API_KEY or APP_KEY not found!")
+        exit(2)
+
+    return apiKey, appKey
 
 
 def get_monitors(setup_dd_client, monitor_tag):
@@ -45,7 +55,7 @@ def format_monitor(monitor_response, monitor_name):
         "kind": "DatadogMonitor",
         "metadata": {
             "name": monitor_name,
-            "labels": {"service": "tax-manager"}
+            "labels": {"service": monitor_name}
         },
         "spec": {}
     }
