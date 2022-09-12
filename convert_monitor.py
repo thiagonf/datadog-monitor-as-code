@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from getopt import GetoptError, getopt
@@ -44,6 +45,16 @@ def slugify(string):
     return string
 
 
+def validate_name(monitor_name):
+    if len(monitor_name) > 62:
+        print("============================================================")
+        logging.error(f"The monitor's name is longer than 62 character. \n  \
+        {monitor_name} \n You must change the name in the field: \n \
+        - metadata > name \n \
+        - metadata > labels > service")
+        print("============================================================")
+
+
 def check_if_folder_exists():
     if not os.path.isdir("monitors"):
         os.makedirs("monitors")
@@ -70,9 +81,16 @@ def format_monitor(monitor_response, monitor_name):
     monitor["spec"]["tags"] = monitor_response["tags"]
     monitor["spec"]["priority"] = monitor_response["priority"]
     monitor["spec"]["restricted_roles"] = monitor_response["restricted_roles"]
+    monitor = format_options(monitor_response, monitor)
+    return monitor
+
+
+def format_options(monitor_response, monitor):
     try:
-        monitor["spec"]["options"] = monitor_response["options"].get(
-            "thresholds").to_dict()
+        thresholds = monitor_response["options"].get("thresholds").to_dict()
+        items = thresholds.items()
+        thresholds = {str(key): str(value) for key, value in items}
+        monitor["spec"]["options"] = {"thresholds": thresholds}
     except Exception:
         pass
     return monitor
@@ -88,6 +106,7 @@ def main(argv):
     for monitor_response in monitors:
 
         monitor_name = slugify(monitor_response["name"])
+        validate_name(monitor_name)
         monitor = format_monitor(monitor_response, monitor_name)
 
         file_name = monitor_name + ".yaml"
