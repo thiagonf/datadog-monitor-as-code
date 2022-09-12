@@ -76,12 +76,20 @@ def format_monitor(monitor_response, monitor_name):
     monitor["spec"]["type"] = str(
         monitor_response["type"]).replace("\n", "\\n")
     monitor["spec"]["query"] = str(monitor_response["query"]).replace("\n", "")
-    monitor["spec"]["message"] = str(
-        monitor_response["message"]).replace("\n", "\\n")
+    format_message(monitor_response, monitor)
     monitor["spec"]["tags"] = monitor_response["tags"]
     monitor["spec"]["priority"] = monitor_response["priority"]
     monitor["spec"]["restricted_roles"] = monitor_response["restricted_roles"]
     monitor = format_options(monitor_response, monitor)
+    return monitor
+
+
+def format_message(monitor_response, monitor):
+    message_monitor = str(
+        monitor_response["message"]).replace("\n", "\\n")
+
+    monitor["spec"]["message"] = f'{{{{ print "{message_monitor}" }}}}'
+
     return monitor
 
 
@@ -112,7 +120,7 @@ def main(argv):
         file_name = monitor_name + ".yaml"
 
         with open("monitors/"+file_name, "w") as f:
-            yaml.dump(monitor, f)
+            yaml.dump(monitor, f, width=float("inf"))
 
 
 def print_examples():
