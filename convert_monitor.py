@@ -76,11 +76,11 @@ def format_monitor(monitor_response, monitor_name):
     monitor["spec"]["type"] = str(
         monitor_response["type"]).replace("\n", "\\n")
     monitor["spec"]["query"] = str(monitor_response["query"]).replace("\n", "")
-    format_message(monitor_response, monitor)
-    monitor["spec"]["tags"] = monitor_response["tags"]
-    monitor = format_priority(monitor_response, monitor)
     monitor["spec"]["restricted_roles"] = monitor_response["restricted_roles"]
-    monitor = format_options(monitor_response, monitor)
+    monitor["spec"]["tags"] = monitor_response["tags"]
+    format_message(monitor_response, monitor)
+    format_priority(monitor_response, monitor)
+    format_options(monitor_response, monitor)
     return monitor
 
 
