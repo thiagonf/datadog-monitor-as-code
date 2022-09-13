@@ -78,9 +78,16 @@ def format_monitor(monitor_response, monitor_name):
     monitor["spec"]["query"] = str(monitor_response["query"]).replace("\n", "")
     format_message(monitor_response, monitor)
     monitor["spec"]["tags"] = monitor_response["tags"]
-    monitor["spec"]["priority"] = monitor_response["priority"]
+    monitor = format_priority(monitor_response, monitor)
     monitor["spec"]["restricted_roles"] = monitor_response["restricted_roles"]
     monitor = format_options(monitor_response, monitor)
+    return monitor
+
+
+def format_priority(monitor_response, monitor):
+    if(monitor_response["priority"] is not None):
+        monitor["spec"]["priority"] = monitor_response["priority"]
+
     return monitor
 
 
