@@ -93,7 +93,7 @@ def format_priority(monitor_response, monitor):
 
 def format_message(monitor_response, monitor):
     message_monitor = str(
-        monitor_response["message"]).replace("\n", "\\n")
+        monitor_response["message"]).replace("\n", "\\n").replace('"', '\\"')
 
     monitor["spec"]["message"] = f'{{{{ print "{message_monitor}" }}}}'
 
